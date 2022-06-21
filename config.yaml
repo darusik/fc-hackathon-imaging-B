@@ -1,0 +1,21 @@
+fc-hackathon-imaging-B:
+  
+  local_dataset: 
+    train: "train"
+
+  global_dataset:
+  test: "test"
+
+  model:
+    name: "resnet34"
+    batch_size: 32
+    optimizer: 'sgd' 
+    lr: 0.01
+    momentum: 0.9
+
+  federated_param:
+    num_rounds: 10
+    weighted_aggregation: False
+
+
+
