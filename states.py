@@ -1,13 +1,41 @@
-from FeatureCloud.app.engine.app import AppState, app_state
+from FeatureCloud.app.engine.app import AppState, app_state, LogLevel, Role
 
 
-# FeatureCloud requires that apps define the at least the 'initial' state.
-# This state is executed after the app instance is started.
-@app_state('initial')
+@app_state('initial', Role.BOTH)
 class InitialState(AppState):
 
     def register(self):
-        self.register_transition('terminal')  # We declare that 'terminal' state is accessible from the 'initial' state.
+        self.register_transition('local_training', Role.BOTH)
 
     def run(self):
-        return 'terminal'  # This means we are done. If the coordinator transitions into the 'terminal' state, the whole computation will be shut down.
+        return 'local_training'
+
+
+@app_state('local_training', Role.BOTH)
+class LocalTrainingState(AppState):
+    def register(self):
+        self.register_transition('global_aggregation', Role.COORDINATOR)
+        self.register_transition('local_training', Role.PARTICIPANT)
+        self.register_transition('terminal', Role.BOTH)
+
+    def run(self):
+        if self.is_coordinator:
+            if True:#some condition
+                return'global_aggregation'
+            else:
+                return 'terminal'
+        else:
+            if True:#some condition
+                return 'local_training'
+            else:
+                return 'terminal'
+
+
+@app_state('global_aggregation', Role.COORDINATOR)
+class GlobalAggregateState(AppState):
+    def register(self):
+        self.register_transition('local_training', Role.COORDINATOR)
+
+    def run(self):
+        return 'local_training'
+
