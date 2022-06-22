@@ -1,1 +1,6 @@
+bios
 featurecloud
+medmnist
+numpy
+torch
+

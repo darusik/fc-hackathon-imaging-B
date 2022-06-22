@@ -1,10 +1,12 @@
 fc-hackathon-imaging-B:
-  
-  local_dataset: 
-    train: "train"
+  # For each dataset we use data (X_name) and labels (y_name)
+  local_dataset:
+    train: "_train.npy"
+    val_l: "_val_l.npy"
 
   global_dataset:
-  test: "test"
+    test: "_test.npy"
+    val_gl: "_val_gl.npy"
 
   model:
     name: "resnet34"
