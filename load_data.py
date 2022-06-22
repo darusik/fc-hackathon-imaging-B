@@ -37,11 +37,8 @@ def split_data_chestxray(DataClass, n_clients, seed, path):
     
 def split(X, y, X2, y2, n_clients, seed, path, name, val=True):
     for n in range(n_clients):
-        print(n)
         X_i = X[n::n_clients,:,:]
-        print(X_i.shape)
         y_i = y[n::n_clients]
-        print(y_i.shape)
         if val:
             X_i_2 = X2[n::n_clients,:,:]
             y_i_2 = y2[n::n_clients]
