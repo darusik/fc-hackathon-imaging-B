@@ -1,25 +1,24 @@
-from sklearn.metrics import precision_recall_fscore_support, roc_auc_score
+from sklearn.metrics import  roc_auc_score, precision_score, recall_score
 from tqdm import tqdm
 import torch
 
 def evaluate(y_true, y_score):
     # Compute Accuracy
+    # FN = Actually True but classified as wrong
     eq = (y_score == y_true).to(torch.float64)
-    sum = torch.sum(eq, dim=0)
-    acc = sum / y_true.shape[0]
+    tp = torch.sum(eq, dim=0)
+    acc = tp / y_true.shape[0]
     
-    # Compute auc score
-    # auc = torch.tensor(roc_auc_score(y_true.detach().numpy(), y_score.detach().numpy()), average="samples")
-    auc = 0
+    # Compute auc score, precision and recall for each class
+    auc = torch.tensor([])
+    prec = torch.tensor([])
+    rec = torch.tensor([])
     for i in range(y_score.shape[1]):
-        label_auc = roc_auc_score(y_true[:, i], y_score[:, i])
-        auc += label_auc
-    auc /= y_true.shape[1]
+        auc = torch.cat((auc, torch.tensor([roc_auc_score(y_true[:, i], y_score[:, i])])), dim=0)
+        prec = torch.cat((prec, torch.tensor([precision_score(y_true[:, i], y_score[:, i])])), dim=0)
+        rec = torch.cat((rec, torch.tensor([recall_score(y_true[:, i], y_score[:, i])])), dim=0)
 
-    # Compute Precision & Recall
-    precision, recall, _, _ = precision_recall_fscore_support(y_true.detach().numpy(), y_score.detach().numpy(), average="samples")
-
-    return acc, torch.tensor(auc), torch.tensor(precision), torch.tensor(recall)
+    return acc, auc, prec, rec
 
 
 def train(model, train_loader, optimizer, criterion, device, evaluator=None):
@@ -94,10 +93,6 @@ def test(model, test_loader, criterion, device, evaluator=None):
     
     # Collect Metrics
     acc, auc, precision, recall = evaluate(y_true, y_score)
-    print(acc)
-    print(auc)
-    print(precision)
-    print(recall)
 
     # Average Loss
     epoch_loss = running_loss / counter
