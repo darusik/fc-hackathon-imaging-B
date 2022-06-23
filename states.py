@@ -5,6 +5,7 @@ import bios
 
 import numpy as np
 import timm
+import torch
 import torch.optim as optim
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -117,7 +118,8 @@ class LocalTrainingState(AppState):
     def register(self):
         self.register_transition('global_aggregation', Role.COORDINATOR)
         self.register_transition('local_training', Role.PARTICIPANT)
-        self.register_transition('terminal', Role.BOTH)
+        self.register_transition('output_state', Role.COORDINATOR)
+        self.register_transition('terminal', Role.PARTICIPANT)
 
     def run(self):
          
@@ -147,7 +149,10 @@ class LocalTrainingState(AppState):
             self.log(f'Global Test Recall: {test_rec:.3f}.')    
 
         if current_round >= self.load('federated_rounds'):
-            return 'terminal'
+            if self.is_coordinator:
+                return 'output_state'
+            else:
+                return 'terminal'
 
         for epoch in range(epochs):
             
@@ -196,3 +201,21 @@ class GlobalAggregateState(AppState):
         self.update(message='Global model is broadcasting', state=State.RUNNING)
         return 'local_training'
 
+
+@app_state('output_state', Role.COORDINATOR)
+class OutputState(AppState):
+
+    def register(self):
+        self.register_transition('terminal', Role.COORDINATOR)
+
+    def run(self):
+        # Predicted Labels have to be added
+        with open('/mnt/output/output.csv', 'wb') as f:
+            test_loader = self.load('test')
+            output = torch.tensor([])
+            for images, labels in test_loader:
+                output = torch.cat((output, labels), dim=0)
+
+            np.savetxt(f, output.detach().numpy(), delimiter=",")
+
+        return 'terminal'
