@@ -63,5 +63,5 @@ n_classes = len(info["label"])
 DataClass = getattr(medmnist, info["python_class"])
 
 seed = (hash("fc-hackathon-imaging-B") % (2**32-1))
-split_data_chestxray(DataClass, 2, seed, "data")
+split_data_chestxray(DataClass, 2, seed, path)
 
