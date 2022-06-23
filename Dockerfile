@@ -9,6 +9,7 @@ COPY server_config/nginx /etc/nginx/sites-available/default
 COPY server_config/docker-entrypoint.sh /entrypoint.sh
 
 COPY requirements.txt /app/requirements.txt
+RUN pip3 install torch torchvision --extra-index-url https://download.pytorch.org/whl/cpu
 RUN pip3 install -r ./app/requirements.txt
 
 COPY . /app

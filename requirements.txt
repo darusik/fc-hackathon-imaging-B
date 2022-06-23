@@ -2,5 +2,8 @@ bios
 featurecloud
 medmnist
 numpy
-torch
-
+timm
+matplotlib
+tqdm
+argparse
+pillow
