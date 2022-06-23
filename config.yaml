@@ -9,15 +9,20 @@ fc-hackathon-imaging-B:
     val_gl: "_val_gl.npy"
 
   model:
-    name: "resnet34"
-    batch_size: 32
+    image_size: 28
+    name: "resnet18"
+    is_pretrained: False
+    batch_size: 64
     optimizer: 'sgd' 
     lr: 0.01
     momentum: 0.9
 
-  federated_param:
-    num_rounds: 10
+  federated_params:
+    num_rounds: 1
     weighted_aggregation: False
+    local_epochs: 1
+
+  test_on_val: True
 
 
 
