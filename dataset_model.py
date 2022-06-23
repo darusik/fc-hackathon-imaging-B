@@ -13,6 +13,7 @@ class CustomChestMnist(Dataset):
                  labels=None,
                  transform=None,
                  target_transform=None,
+                 return_dict=False
                 ):
         ''' dataset
         :param imgs: img data
@@ -27,6 +28,7 @@ class CustomChestMnist(Dataset):
         self.labels = labels
         self.transform = transform
         self.target_transform = target_transform
+        self.return_dict = return_dict
 
     def __len__(self):
         return self.imgs.shape[0]
@@ -43,10 +45,35 @@ class CustomChestMnist(Dataset):
         if self.transform is not None:
             img = self.transform(img)
 
-        if self.target_transform is not None:
-            target = self.target_transform(target)
+        if not self.return_dict:
 
-        return img, target
+            if self.target_transform is not None:
+                target = self.target_transform(target)
+
+            return img, target
+
+        else:
+            sample = {
+                'image':img,
+                'labels': {
+                    'label_atelectasis': target[0],
+                    'label_cardiomegaly': target[1],
+                    'label_effusion': target[2],
+                    'label_infiltration': target[3],
+                    'label_mass': target[4],
+                    'label_nodule': target[5],
+                    'label_pneumonia': target[6],
+                    'label_pneumothorax': target[7],
+                    'label_consolidation': target[8],
+                    'label_edema': target[9],
+                    'label_emphysema': target[10],
+                    'label_fibrosis': target[11],
+                    'label_pleural': target[12],
+                    'label_hernia': target[13],
+                }
+                }
+            return sample
+
 
     def __repr__(self):
         '''Adapted from torchvision.ss'''
