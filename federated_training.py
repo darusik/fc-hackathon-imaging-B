@@ -1,8 +1,21 @@
+from sklearn.metrics import precision_recall_fscore_support, roc_auc_score
 from tqdm import tqdm
 import torch
 
+def evaluate(y_true, y_score):
+    # Compute Accuracy
+    res = (y_score == y_true).to(torch.float64)
+    res = torch.sum(res, dim=0)
+    acc = res / y_true.shape[0]
+    
+    # Compute auc score
+    auc = torch.tensor(roc_auc_score(y_true, y_score))
 
-#TODO: implement evaluator that computes acc, precision, recall
+    # Compute Precision & Recall
+    precision, recall, _, _ = precision_recall_fscore_support(y_true.numpy(), y_score.numpy(), average="samples")
+
+    return acc, auc, torch.tensor(precision), torch.tensor(recall)
+
 
 def train(model, train_loader, optimizer, criterion, device, evaluator=None):
     model.train()
@@ -27,6 +40,7 @@ def train(model, train_loader, optimizer, criterion, device, evaluator=None):
 
     epoch_loss = running_loss / counter
     return epoch_loss
+
 
 def test(model, test_loader, criterion, device, evaluator=None):
     model.eval()
