@@ -138,22 +138,33 @@ class LocalTrainingState(AppState):
         device = 'cpu'
         epochs = self.load('local_epochs')
         
-
-        
         if current_round > 0:
-            test_epoch_loss = test(model, test_loader, criterion, device)
-            self.update(message=f'Global test loss :{test_epoch_loss:.3f}', state=State.RUNNING)
+            test_loss, test_acc, test_auc, test_prec, test_rec = test(model, test_loader, criterion, device)
+            self.update(message=f'Global test loss :{test_loss:.3f}', state=State.RUNNING)
+            self.log(f'Global Test Accuracy for each class: {test_acc}.')
+            self.log(f'Global Test AUC-score: {test_auc:.3f}.')
+            self.log(f'Global Test Precession: {test_prec:.3f}.')
+            self.log(f'Global Test Recall: {test_rec:.3f}.')    
 
         if current_round >= self.load('federated_rounds'):
             return 'terminal'
 
-        
         for epoch in range(epochs):
             
-            train_epoch_loss = train(model, train_loader, optimizer, criterion, device)
-            self.update(message=f'Train loss :{train_epoch_loss:.3f}', state=State.RUNNING)
-            test_epoch_loss = test(model, test_loader, criterion, device)
-            self.update(message=f'Test loss :{test_epoch_loss:.3f}', state=State.RUNNING)
+            train_loss, train_acc, train_auc, train_prec, train_rec = train(model, train_loader, optimizer, criterion, device)
+            self.update(message=f'Train loss :{train_loss:.3f}', state=State.RUNNING)
+            self.log(f'Train Accuracy for each class: {train_acc}.')
+            self.log(f'Train AUC-score: {train_auc:.3f}.')
+            self.log(f'Train Precession: {train_prec:.3f}.')
+            self.log(f'Train Recall: {train_rec:.3f}.')
+
+            test_loss, test_acc, test_auc, test_prec, test_rec = test(model, test_loader, criterion, device)
+            self.update(message=f'Test loss :{test_loss:.3f}', state=State.RUNNING)
+            self.log(f'Test Accuracy for each class: {test_acc}.')
+            self.log(f'Test AUC-score: {test_auc:.3f}.')
+            self.log(f'Test Precession: {test_prec:.3f}.')
+            self.log(f'Test Recall: {test_rec:.3f}.')
+
         
 
         self.store('opt', optimizer) 
