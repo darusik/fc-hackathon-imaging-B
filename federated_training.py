@@ -45,7 +45,7 @@ def train(model, train_loader, optimizer, criterion, device, evaluator=None):
         running_loss += loss.item()
 
         # Threshold for classes
-        tmp = (outputs > 0.7).to(labels.dtype)
+        tmp = (outputs > 0.5).to(labels.dtype)
         y_true = torch.cat((y_true, labels), 0)
         y_score = torch.cat((y_score, tmp), 0)
 
@@ -85,8 +85,8 @@ def test(model, test_loader, criterion, device, evaluator=None):
             loss = criterion(outputs, labels)
             running_loss += loss.item()
 
-            # Threshold for classes
-            tmp = (outputs > 0.7).to(labels.dtype)
+                # Threshold for classes
+            tmp = (outputs > 0.5).to(labels.dtype)
             y_true = torch.cat((y_true, labels), 0)
             y_score = torch.cat((y_score, tmp), 0)
            
@@ -97,4 +97,4 @@ def test(model, test_loader, criterion, device, evaluator=None):
     # Average Loss
     epoch_loss = running_loss / counter
 
-    return epoch_loss, acc, auc, precision, recall
+    return epoch_loss, acc, auc, precision, recall, y_true, y_score

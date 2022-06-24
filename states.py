@@ -141,12 +141,14 @@ class LocalTrainingState(AppState):
         epochs = self.load('local_epochs')
         
         if current_round > 0:
-            test_loss, test_acc, test_auc, test_prec, test_rec = test(model, test_loader, criterion, device)
+            test_loss, test_acc, test_auc, test_prec, test_rec, y_true, y_score = test(model, test_loader, criterion, device)
             self.update(message=f'Global test loss :{test_loss:.3f}', state=State.RUNNING)
             self.log(f'Global Test Accuracy for each class: {test_acc}.')
             self.log(f'Global Test AUC-score: {test_auc}.')
             self.log(f'Global Test Precession: {test_prec}.')
             self.log(f'Global Test Recall: {test_rec}.')    
+            self.store("y_true", y_true)
+            self.store("y_score", y_score)
 
         if current_round >= self.load('federated_rounds'):
             if self.is_coordinator:
@@ -163,7 +165,7 @@ class LocalTrainingState(AppState):
             self.log(f'Train Precession: {train_prec}.')
             self.log(f'Train Recall: {train_rec}.')
 
-            test_loss, test_acc, test_auc, test_prec, test_rec = test(model, test_loader, criterion, device)
+            test_loss, test_acc, test_auc, test_prec, test_rec, _, _ = test(model, test_loader, criterion, device)
             self.update(message=f'Test loss :{test_loss:.3f}', state=State.RUNNING)
             self.log(f'Test Accuracy for each class: {test_acc}.')
             self.log(f'Test AUC-score: {test_auc}.')
@@ -211,11 +213,8 @@ class OutputState(AppState):
     def run(self):
         # Predicted Labels have to be added
         with open('/mnt/output/output.csv', 'wb') as f:
-            test_loader = self.load('test')
-            output = torch.tensor([])
-            for images, labels in test_loader:
-                output = torch.cat((output, labels), dim=0)
+            y_true = self.load("y_true")
+            y_score = self.load("y_score")
 
-            np.savetxt(f, output.detach().numpy(), delimiter=",")
-
+            np.savetxt(f, np.vstack((y_true, y_score)), delimiter=",")
         return 'terminal'
