@@ -14,13 +14,13 @@ fc-hackathon-imaging-B:
     is_pretrained: False
     batch_size: 128
     optimizer: 'adam' 
-    lr: 0.01
+    lr: 0.001
     momentum: 0.9
 
   federated_params:
-    num_rounds: 20
+    num_rounds: 10
     weighted_aggregation: False
-    local_epochs: 25
+    local_epochs: 20
 
   test_on_val: False
 
