@@ -10,7 +10,7 @@ fc-hackathon-imaging-B:
 
   model:
     image_size: 28
-    name: "resnet50"
+    name: "resnet18"
     is_pretrained: False
     batch_size: 128
     optimizer: 'adam' 
@@ -20,7 +20,7 @@ fc-hackathon-imaging-B:
   federated_params:
     num_rounds: 10
     weighted_aggregation: False
-    local_epochs: 20
+    local_epochs: 15
 
   test_on_val: False
 
